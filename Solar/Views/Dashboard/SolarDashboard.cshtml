@@ -12,8 +12,8 @@
                     <th></th>
                 </tr>
                 <tr>
-                    <td>Max Current Power:</td>
-                    <td>@ViewBag.maxCurrentPowerToday</td>
+                    <td>Running/Max Current:</td>
+                    <td>@ViewBag.RunningPower/@ViewBag.maxCurrentPowerToday</td>
                 </tr>
                 <tr>
                     <td>Generated Total Power:</td>
@@ -33,7 +33,7 @@
                     <th></th>
                 </tr>
                 <tr>
-                    <td>MaxCurrent Power:</td>
+                    <td>Max Current Power:</td>
                     <td>@ViewBag.maxCurrentPowerYesterday</td>
                 </tr>
                 <tr>
@@ -80,7 +80,7 @@
                 </tr>
                 <tr>
                     <td>Saved:</td>
-                    <td>@(ViewBag.maxTotalPowerToday*.4) Kg</td>
+                    <td>@(ViewBag.maxTotalPowerToday * .4) Kg</td>
                 </tr>
 
             </table>
@@ -109,13 +109,37 @@
     </div>
 </div>
 
+<div class="row" style="margin-top:20px">
+    <select class="form-control month" style="width:250px; float:right;">
+        <option value="1">Jan</option>
+        <option value="2">Feb</option>
+        <option value="3">Mar</option>
+        <option value="4">Apr</option>
+        <option value="5">May</option>
+        <option value="6">Jun</option>
+        <option value="7">Jul</option>
+        <option value="8">Aug</option>
+        <option value="9">Sep</option>
+        <option value="10">Oct</option>
+        <option value="11">Nov</option>
+        <option value="12">Dec</option>
+    </select>
+    <div class="col-md-12" id="totalGraph">
+    
+    </div>
+
+</div>
+
+
+
 
 <script>
     var TodayPower = @ViewBag.maxTotalPowerToday
     var xAxisCategory = JSON.parse('@Html.Raw(Json.Serialize(@ViewBag.xAxisCategoryList))');
     var yAxisCurrentPower = JSON.parse('@Html.Raw(Json.Serialize(@ViewBag.CurrentPowerList))');
     var yAxisTotalPower = JSON.parse('@Html.Raw(Json.Serialize(@ViewBag.TotalPowerList))');
-
+    var DeviceName = '@ViewBag.DeviceName';
+    var month = '@ViewBag.Month';
     Highcharts.chart('container', {
 
     chart: {
@@ -128,8 +152,10 @@
     },
 
     title: {
-        text: 'Device: 3009111858'
-    },
+         text: 'Today power generated till now'
+
+        },
+
 
     pane: {
         startAngle: -90,
@@ -293,6 +319,12 @@ var chart2 = Highcharts.chart('container1', {
     }]
 });
     $(document).ready(function () {
+        $(".month").change(function () {
+            month = $(".month").val();
+            $("#totalGraph").load("/dashboard/TotalPowerGraph?device=" + $('#Devices').val()+ "&month=" + month);
+        })
+        $(".month").val(month);
+        $("#totalGraph").load("/dashboard/TotalPowerGraph?device=" + $('#Devices').val()+ "&month=" + month);
         chart2 ?.xAxis[0].setCategories(xAxisCategory);
 
         chart2?.series[0].setData(yAxisCurrentPower);

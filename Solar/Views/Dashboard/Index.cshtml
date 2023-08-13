@@ -52,21 +52,24 @@
         background: #f1f7ff;
     }
 </style>
-<div class="row">
-    <div class="col-md-12" style="float:right;margin-top:10px;">
-        @Html.DropDownList("Devices", (List<SelectListItem>)ViewBag.DeviceList, new { @class = "form-control dropdown_device", style = "width: 175px; float: right;margin-bottom: 5px;"})
+<div class="row" style="margin-top:10px;color: #1B3D75;font-weight: bold;">
+    <div class="col-md-4 deviceName" style="margin-top:19px;">Device# : ALL</div>
+    <div class="col-md-8" style="float:right;">
+        @Html.DropDownList("Devices", (List<SelectListItem>)ViewBag.DeviceList, new { @class = "form-control dropdown_device", style = "width: 175px; float: right;margin-bottom: 5px;" })
 
     </div>
     <div id="dashboard">
-        asdsad
+
     </div>
 
 </div>
 <script>
     $(document).ready(function () {
         var device = $('#Devices').val();
+
+
         //$("#dashboard").load("/dashboard/SolarDashboard?device=" + device);
-        $("#dashboard").load("/dashboard/SolarDashboard?device=" + $('#Devices').val(), function(response, status, xhr) {
+        $("#dashboard").load("/dashboard/SolarDashboard?device=" + $('#Devices').val(), function (response, status, xhr) {
             if (status === "success") {
                 console.log("Load success");
             } else if (status === "error") {
@@ -74,6 +77,12 @@
             }
         });
         $('#Devices').change(function () {
+            if ($('#Devices').val() != "-1") {
+                $(".deviceName").html("Device# : " + $('#Devices').val())
+            }
+            else {
+                $(".deviceName").html("Device# : ALL")
+            }
             $("#dashboard").load("/dashboard/SolarDashboard?device=" + $('#Devices').val());
         })
     })

@@ -1,0 +1,83 @@
+﻿@{
+    Layout = null;
+}
+
+   
+<figure class="highcharts-figure graph" >
+    <div id="container5"></div>
+</figure>
+<style>
+    .highcharts-figure, .highcharts-data-table table {
+    min-width: 320px;
+    max-width:100% !important;
+    /* max-width: 800px; */
+    margin: 1em auto;
+    }
+</style>
+
+<script>
+    var xBarCategoryList = JSON.parse('@Html.Raw(Json.Serialize(@ViewBag.xBarCategoryList))');
+    var yBarTotalPowerList = JSON.parse('@Html.Raw(Json.Serialize(@ViewBag.yBarTotalPowerList))');;
+   if (document.getElementById("container5")) {
+        var chart = Highcharts.chart('container5', {
+        chart: {
+            type: 'column',
+            //backgroundColor: "#ECF0F5"
+        },
+        title: {
+            text: 'Total Power Generation'
+        },
+        subtitle: {
+            text: ''
+        },
+        xAxis: {
+            categories: [],
+
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Measure in Kw/h'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y} kw/h</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+     
+        series: [{
+            name: 'Total Power',
+            color: "#38768E",
+            data: [],
+            dataLabels: {
+                enabled: true,
+                borderRadius: 5,
+                backgroundColor: 'rgba(252, 255, 197, 0.7)',
+                borderWidth: 1,
+                fontSize:'20px',
+                color: '#BC4B4D',
+                rotation: 270,
+                x: 2,
+                y: -20,
+                style: {
+                    fontSize: "10px",
+                }
+
+            }
+
+        }]
+    });
+    }
+    $(document).ready(function () {
+        chart.series[0].setData(yBarTotalPowerList);
+        chart.xAxis[0].setCategories(xBarCategoryList);
+        chart.render();
+
+
+    })
+</script>
+

@@ -23,10 +23,10 @@ namespace Solar.Controllers
         public IActionResult Index()
         {
             List<SelectListItem> devices = new List<SelectListItem>();
-      
+
 
             List<GenPower> model = _dahboardDAL.GetAllDevices();
-           
+
             devices.Add(new SelectListItem
             {
                 Text = "ALL",
@@ -47,7 +47,7 @@ namespace Solar.Controllers
 
         public IActionResult SolarDashboard(string device)
         {
-            List<GenPowerModel> modelList = _dahboardDAL.GetGenPowerListbyDate(device);
+            List<GenPowerModel> modelList = _dahboardDAL.GetGenPowerListbyDate(device,null,null);
             ViewBag.maxCurrentPowerToday = modelList
                                             ?.Where(x => x.SetDate == DateTime.Now.Date)
                                             .FirstOrDefault()
@@ -95,7 +95,10 @@ namespace Solar.Controllers
                 xAxisCategoryList.Add(str2);
             }
             ViewBag.xAxisCategoryList = xAxisCategoryList;
-            List<GenPowerModel> daywisePowerList = _dahboardDAL.GetAllCurrentAndTotalPowerList(device);
+            string fromfilterdate = year + "-0" + month + "-01";
+            string tofilterdate = year + "-0" + month +"-"+ num;
+            List<GenPowerModel> daywisePowerList = _dahboardDAL.GetGenPowerListbyDate(device, fromfilterdate, tofilterdate);
+     
             List<double> yAxisCurrentPowerList = new List<double>();
             List<double> yAxisTotalPowerList = new List<double>();
             for (int i = 0; i < 31; i++)
@@ -105,26 +108,65 @@ namespace Solar.Controllers
             }
             if (daywisePowerList != null)
             {
-                foreach(var item in daywisePowerList)
+                foreach (var item in daywisePowerList)
                 {
                     int day = Convert.ToInt32(item.SetDate.Day);
                     yAxisCurrentPowerList[day - 1] = item.CurrentPower;
-                    yAxisTotalPowerList[day - 1] = item.TotalPower/1000;
+                    yAxisTotalPowerList[day - 1] = item.DifferenceTotalPower;
                 }
             }
 
             ViewBag.CurrentPowerList = yAxisCurrentPowerList;
             ViewBag.TotalPowerList = yAxisTotalPowerList;
-
-
+            ViewBag.RunningPower = _dahboardDAL.GetRunningPower(device);
+            ViewBag.Month = month;
+            if (device != "-1")
+            {
+                ViewBag.DeviceName = device;
+            }
+            else
+            {
+                ViewBag.DeviceName = "ALL";
+            }
             return View();
         }
-
+        public IActionResult TotalPowerGraph(string device,int month)
+        {
+            List<string> xBarCategoryList = new List<string>();
+            string monthname = _dahboardDAL.GetMonthList()[month];
+            int year = Convert.ToInt32(DateTime.Now.AddDays(-1).ToString("yyyy"));
+            int num = DateTime.DaysInMonth(year, month);
+            for (int index = 1; index <= num; ++index)
+            {
+                string str2 = index.ToString() + " " + monthname;
+                xBarCategoryList.Add(str2);
+            }
+            ViewBag.xBarCategoryList = xBarCategoryList;
+            string fromfilterdate = year + "-0" + month + "-01";
+            string tofilterdate = year + "-0" + month +"-"+ num;
+            List<GenPowerModel> daywisePowerList = _dahboardDAL.GetGenPowerListbyDate(device,fromfilterdate,tofilterdate);
+            List<double> yBarTotalPowerList = new List<double>();
+            for (int i = 0; i < 31; i++)
+            {
+                yBarTotalPowerList.Add(0);
+            }
+            if (daywisePowerList != null)
+            {
+                foreach (var item in daywisePowerList)
+                {
+                    int day = Convert.ToInt32(item.SetDate.Day);
+                    yBarTotalPowerList[day - 1] = item.DifferenceTotalPower;
+                }
+            }
+            ViewBag.yBarTotalPowerList = yBarTotalPowerList;
+            return View();
+        }
         public List<TotalPowerModel> GetTotalGeneratedPowerList()
         {
             List<TotalPowerModel> model = new List<TotalPowerModel>();
             model = _dahboardDAL.GetTotalGeneratedPowerList();
             return model;
         }
+
     }
 }

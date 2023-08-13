@@ -90,4 +90,5 @@ namespace Solar.Models.BEL
 
         public double DAY_31 { get; set; }
     }
+  
 }
